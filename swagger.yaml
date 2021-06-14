@@ -16,16 +16,22 @@ produces:
 - application/json
 paths:
   /ideb:
-    x-summary: Índice de Desenvolvimento da Educação Básica
     get:
-      summary: Dados do Brasil, Estados, Municípios
-      description: Retorna os dados do IDEB para Brasil, Estados e Municípios através do Código do IBGE.
+      summary: Resultados do IDEB
+      description: 'Retorna os dados do IDEB para Brasil, Estados e Municípios através do Código do IBGE. Ou para escolas, informando o Código INEP. Obs.: Informar apenas um código IBGE_ID ou INEP_ID em cada requisição.'
+      tags: 
+        - IDEB
       parameters:
         - in: query
           name: ibge_id
           type: integer
-          required: true
+          required: false
           description: 'Código IBGE dos estados e municípios, para dados do Brasil informar o Código 7'
+        - in: query
+          name: inep_id
+          type: integer
+          required: false
+          description: 'Código INEP da escola.'
         - in: query
           name: ano
           type: integer
@@ -47,7 +53,7 @@ paths:
             application/json:
               data:
                 - 
-                  id: 17
+                  ibge_id: 17
                   dependencia_id: 2
                   ciclo_id: AI
                   ano: 2019
@@ -59,14 +65,66 @@ paths:
                   ideb_projetado: 5.6
                   ideb_aumentou: 0
                   aprovacao: 92.6
+  /ideb/projecoes:
+    get:
+      summary: Projeções do IDEB
+      description: 'Retorna os dados das projeções do IDEB para Brasil, Estados e Municípios através do Código do IBGE. Ou para escolas, informando o Código INEP. Obs.: Informar apenas um código IBGE_ID ou INEP_ID em cada requisição.'
+      tags: 
+        - IDEB
+      parameters:
+        - in: query
+          name: ibge_id
+          type: integer
+          required: false
+          description: 'Código IBGE dos estados e municípios, para dados do Brasil informar o Código 7'
+        - in: query
+          name: inep_id
+          type: integer
+          required: false
+          description: 'Código INEP da escola.'
+        - in: query
+          name: ano
+          type: integer
+          required: true
+          description: 'Ano do resultado do IDEB'
+        - in: query
+          name: dependencia_id
+          type: integer
+          required: false
+          description: 'Código da Dependência Administrativa'
+      responses:
+        200:
+          description: Sucesso
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Ideb'
+          examples:
+            application/json:
+              data:
+                - 
+                  ibge_id: 5300108
+                  dependencia_id: 5
+                  ciclo_id: AI
+                  ano: 2021
+                  ideb: 6.60
+                - 
+                  ibge_id: 5300108
+                  dependencia_id: 5
+                  ciclo_id: AF
+                  ano: 2021
+                  ideb: 5.30proj
 definitions:
   Ideb:
     title: IDEB
     type: object
     properties:
-      id:
+      ibge_id:
         type: integer
-        description: ID do código IBGE para resultados de BR, Estados ou Municípios e INEP no caso de busca por escolas.
+        description: Código IBGE do território.
+      inep_id:
+        type: integer
+        description: Código INEP da escola.
       dependencia_id:
         type: integer
         description: Código de Dependência Administrativa (1 - Federal, 2 - Estadual, 3 - Municipal, 4 - Privada, 5 - Pública)
