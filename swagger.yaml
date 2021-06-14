@@ -1,8 +1,8 @@
 swagger: '2.0'
 info:
   version: '1.0'
-  title: "qedu"
-  description: Polls is a simple API allowing consumers to view polls and vote in them.
+  title: "QEdu API"
+  description: Acesso aos dados públicos da Educação Básica brasileira.
   license:
     name: MIT
     url: https://github.com/apiaryio/polls-api/blob/master/LICENSE
@@ -15,106 +15,96 @@ consumes:
 produces:
 - application/json
 paths:
-  /questions:
-    x-summary: Questions Collection
+  /ideb:
+    x-summary: Índice de Desenvolvimento da Educação Básica
     get:
-      summary: List All Questions
+      summary: Dados do Brasil, Estados, Municípios
+      description: Retorna os dados do IDEB para Brasil, Estados e Municípios através do Código do IBGE.
+      parameters:
+        - in: query
+          name: ibge_id
+          type: integer
+          required: true
+          description: 'Código IBGE dos estados e municípios, para dados do Brasil informar o Código 7'
+        - in: query
+          name: ano
+          type: integer
+          required: true
+          description: 'Ano do resultado do IDEB'
+        - in: query
+          name: dependencia_id
+          type: integer
+          required: false
+          description: 'Código da Dependência Administrativa'
       responses:
         200:
-          description: Successful Response
+          description: Sucesso
           schema:
             type: array
             items:
-              $ref: '#/definitions/Question'
+              $ref: '#/definitions/Ideb'
           examples:
             application/json:
-              - question: Favourite programming language?
-                published_at: '2015-08-05T08:40:51.620Z'
-                choices:
-                  - choice: Swift
-                    votes: 2048
-                  - choice: Python
-                    votes: 1024
-                  - choice: Objective-C
-                    votes: 512
-                  - choice: Ruby
-                    votes: 256
-    post:
-      description: >-
-        You may create your own question using this action. It takes a JSON
-        object containing a question and a collection of answers in the
-        form of choices.
-      summary: Create a New Question
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/QuestionRequest'
-      responses:
-        201:
-          description: ''
-          schema:
-            $ref: '#/definitions/Question'
-          examples:
-            application/json:
-                question: Favourite programming language?
-                published_at: '2015-08-05T08:40:51.620Z'
-                choices:
-                  - choice: Swift
-                    votes: 0
-                  - choice: Python
-                    votes: 0
-                  - choice: Objective-C
-                    votes: 0
-                  - choice: Ruby
-                    votes: 0
+              data:
+                - 
+                  id: 17
+                  dependencia_id: 2
+                  ciclo_id: AI
+                  ano: 2019
+                  ideb: 5.8
+                  ideb_crescimento: 1.0
+                  aprendizado: 6.1977
+                  nota_mt: 229.54
+                  nota_lp: 211.61
+                  ideb_projetado: 5.6
+                  ideb_aumentou: 0
+                  aprovacao: 92.6
 definitions:
-  Question:
-    title: Question
+  Ideb:
+    title: IDEB
     type: object
     properties:
-      question:
-        type: string
-      published_at:
-        type: string
-      choices:
-        type: array
-        items:
-          $ref: '#/definitions/Choice'
-    required:
-      - question
-      - published_at
-      - choices
-  Choice:
-    title: Choice
-    type: object
-    properties:
-      votes:
+      id:
         type: integer
-        format: int32
-      choice:
+        description: ID do código IBGE para resultados de BR, Estados ou Municípios e INEP no caso de busca por escolas.
+      dependencia_id:
+        type: integer
+        description: Código de Dependência Administrativa (1 - Federal, 2 - Estadual, 3 - Municipal, 4 - Privada, 5 - Pública)
+      ciclo_id:
         type: string
-    required:
-      - votes
-      - choice
-  QuestionRequest:
-    title: Question Request
-    type: object
-    properties:
-      question:
-        type: string
-      choices:
-        type: array
-        items:
-          type: string
-    required:
-      - question
-      - choices
-    example:
-      question: Favourite programming language?
-      choices:
-        - Swift
-        - Python
-        - Objective-C
-        - Ruby
+        description: Identifica a etapa de ensino
+      ano:
+        type: integer
+        description: Ano que foi realizado a avaliação
+      ideb:
+        type: number
+        description: Resultado do IDEB
+      ideb_crescimento:
+        type: number
+        description: Quanto o IDEB cresceu desde a última avaliação
+      aprendizado:
+        type: number
+        description: Nota do aprendizado. Valor de 0 a 10.
+      nota_mt:
+        type: number
+        description: Nota do aprendizado em matemática.
+      nota_lp:
+        type: number
+        description: Nota do aprendizado em lingua portuguesa.
+      ideb_projetado:
+        type: number
+        description: Nota projetada para o IDEB.
+      ideb_aumentou:
+        type: boolean
+        description: 'Valida se o IDEB teve aumento em relação a edição anterior.'
+      aprovacao:
+        type: number
+        description: 'Taxa de aprovação'
+        
+securityDefinitions:
+  Authorization:
+    type: apiKey
+    in: header
+    name: Authorization
+security:
+  - Authorization: ["Bearer token123"]
